@@ -35,9 +35,9 @@ export function ProjectCard({ project, locale = 'mk' }: ProjectCardProps) {
             <span className="text-2xl text-rule" aria-hidden="true">⚗</span>
           </div>
         )}
-        {project.status && (
+        {project.phase && (
           <span className="absolute top-3 left-3 bg-cream/90 type-label px-2 py-1 text-ink">
-            {statusLabels[project.status] || project.status}
+            {statusLabels[project.phase] || project.phase}
           </span>
         )}
       </div>

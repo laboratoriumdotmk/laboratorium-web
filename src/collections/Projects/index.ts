@@ -14,7 +14,7 @@ export const Projects: CollectionConfig = {
   admin: {
     group: 'Content',
     useAsTitle: 'title',
-    defaultColumns: ['title', 'status', '_status'],
+    defaultColumns: ['title', 'phase', '_status'],
     livePreview: {
       url: ({ data }) => {
         const path = generatePreviewPath({ slug: data?.slug as string, collection: 'projects' })
@@ -36,7 +36,7 @@ export const Projects: CollectionConfig = {
     title: true,
     slug: true,
     summary: true,
-    status: true,
+    phase: true,
   },
   versions: {
     drafts: { autosave: { interval: 100 } },
@@ -77,7 +77,7 @@ export const Projects: CollectionConfig = {
               index: true,
             },
             {
-              name: 'status',
+              name: 'phase',
               type: 'select',
               label: 'Project Status',
               options: [

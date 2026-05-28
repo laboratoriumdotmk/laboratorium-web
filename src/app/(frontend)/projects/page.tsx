@@ -8,9 +8,9 @@ export const revalidate = 300
 
 export default async function ProjectsPage() {
   const projects = await queryProjects()
-  const ongoing = projects.filter((p) => p.status === 'ongoing')
-  const upcoming = projects.filter((p) => p.status === 'upcoming')
-  const completed = projects.filter((p) => p.status === 'completed')
+  const ongoing = projects.filter((p) => p.phase === 'ongoing')
+  const upcoming = projects.filter((p) => p.phase === 'upcoming')
+  const completed = projects.filter((p) => p.phase === 'completed')
 
   return (
     <div className="container py-16">

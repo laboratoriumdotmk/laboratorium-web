@@ -1887,7 +1887,7 @@ export interface Project {
   id: string;
   title?: string | null;
   slug: string;
-  status?: ('ongoing' | 'upcoming' | 'completed') | null;
+  phase?: ('ongoing' | 'upcoming' | 'completed') | null;
   summary?: string | null;
   body?: {
     root: {

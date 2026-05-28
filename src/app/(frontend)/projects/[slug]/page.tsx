@@ -48,9 +48,9 @@ export default async function ProjectPage({ params: paramsPromise }: Args) {
       )}
 
       <div className="border-b-2 border-ink pb-6 mb-10">
-        {project.status && (
+        {project.phase && (
           <span className="type-label text-lab-accent block mb-2">
-            {project.status === 'ongoing' ? 'Тековен проект' : project.status === 'upcoming' ? 'Претстоен' : 'Завршен'}
+            {project.phase === 'ongoing' ? 'Тековен проект' : project.phase === 'upcoming' ? 'Претстоен' : 'Завршен'}
           </span>
         )}
         <h1 className="font-display text-4xl lg:text-5xl">{title}</h1>
