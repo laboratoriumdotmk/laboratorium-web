@@ -83,16 +83,11 @@ export interface Config {
     search: Search;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
-    'payload-folders': FolderInterface;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {
-    'payload-folders': {
-      documentsAndFolders: 'payload-folders' | 'media';
-    };
-  };
+  collectionsJoins: {};
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
@@ -110,19 +105,18 @@ export interface Config {
     search: SearchSelect<false> | SearchSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
-    'payload-folders': PayloadFoldersSelect<false> | PayloadFoldersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: string;
+    defaultIDType: number;
   };
-  fallbackLocale: 'mk';
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('mk' | 'en') | ('mk' | 'en')[];
   globals: {
     header: Header;
     footer: Footer;
-    'site-settings': SiteSettings;
+    'site-settings': SiteSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -168,7 +162,7 @@ export interface UserAuthOperations {
  * via the `definition` "pages".
  */
 export interface Page {
-  id: string;
+  id: number;
   title: string;
   hero: {
     type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
@@ -195,11 +189,11 @@ export interface Page {
             reference?:
               | ({
                   relationTo: 'pages';
-                  value: string | Page;
+                  value: number | Page;
                 } | null)
               | ({
                   relationTo: 'posts';
-                  value: string | Post;
+                  value: number | Post;
                 } | null);
             url?: string | null;
             label: string;
@@ -211,7 +205,7 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
-    media?: (string | null) | Media;
+    media?: (number | null) | Media;
   };
   layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
   meta?: {
@@ -219,7 +213,7 @@ export interface Page {
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    image?: (string | null) | Media;
+    image?: (number | null) | Media;
     description?: string | null;
   };
   publishedAt?: string | null;
@@ -237,9 +231,9 @@ export interface Page {
  * via the `definition` "posts".
  */
 export interface Post {
-  id: string;
+  id: number;
   title: string;
-  heroImage?: (string | null) | Media;
+  heroImage?: (number | null) | Media;
   content: {
     root: {
       type: string;
@@ -255,18 +249,18 @@ export interface Post {
     };
     [k: string]: unknown;
   };
-  relatedPosts?: (string | Post)[] | null;
-  categories?: (string | Category)[] | null;
+  relatedPosts?: (number | Post)[] | null;
+  categories?: (number | Category)[] | null;
   meta?: {
     title?: string | null;
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    image?: (string | null) | Media;
+    image?: (number | null) | Media;
     description?: string | null;
   };
   publishedAt?: string | null;
-  authors?: (string | User)[] | null;
+  authors?: (number | User)[] | null;
   populatedAuthors?:
     | {
         id?: string | null;
@@ -287,8 +281,11 @@ export interface Post {
  * via the `definition` "media".
  */
 export interface Media {
-  id: string;
-  alt?: string | null;
+  id: number;
+  /**
+   * Describe the image for screen readers and SEO.
+   */
+  alt: string;
   caption?: {
     root: {
       type: string;
@@ -304,7 +301,6 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
-  folder?: (string | null) | FolderInterface;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -341,6 +337,14 @@ export interface Media {
       filesize?: number | null;
       filename?: string | null;
     };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
     medium?: {
       url?: string | null;
       width?: number | null;
@@ -357,7 +361,7 @@ export interface Media {
       filesize?: number | null;
       filename?: string | null;
     };
-    xlarge?: {
+    hero?: {
       url?: string | null;
       width?: number | null;
       height?: number | null;
@@ -377,46 +381,20 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-folders".
- */
-export interface FolderInterface {
-  id: string;
-  name: string;
-  folder?: (string | null) | FolderInterface;
-  documentsAndFolders?: {
-    docs?: (
-      | {
-          relationTo?: 'payload-folders';
-          value: string | FolderInterface;
-        }
-      | {
-          relationTo?: 'media';
-          value: string | Media;
-        }
-    )[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  folderType?: 'media'[] | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */
 export interface Category {
-  id: string;
+  id: number;
   title: string;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
   generateSlug?: boolean | null;
   slug: string;
-  parent?: (string | null) | Category;
+  parent?: (number | null) | Category;
   breadcrumbs?:
     | {
-        doc?: (string | null) | Category;
+        doc?: (number | null) | Category;
         url?: string | null;
         label?: string | null;
         id?: string | null;
@@ -430,7 +408,7 @@ export interface Category {
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
+  id: number;
   name?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -479,11 +457,11 @@ export interface CallToActionBlock {
           reference?:
             | ({
                 relationTo: 'pages';
-                value: string | Page;
+                value: number | Page;
               } | null)
             | ({
                 relationTo: 'posts';
-                value: string | Post;
+                value: number | Post;
               } | null);
           url?: string | null;
           label: string;
@@ -529,11 +507,11 @@ export interface ContentBlock {
           reference?:
             | ({
                 relationTo: 'pages';
-                value: string | Page;
+                value: number | Page;
               } | null)
             | ({
                 relationTo: 'posts';
-                value: string | Post;
+                value: number | Post;
               } | null);
           url?: string | null;
           label: string;
@@ -554,7 +532,7 @@ export interface ContentBlock {
  * via the `definition` "MediaBlock".
  */
 export interface MediaBlock {
-  media: string | Media;
+  media: number | Media;
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
@@ -581,12 +559,12 @@ export interface ArchiveBlock {
   } | null;
   populateBy?: ('collection' | 'selection') | null;
   relationTo?: 'posts' | null;
-  categories?: (string | Category)[] | null;
+  categories?: (number | Category)[] | null;
   limit?: number | null;
   selectedDocs?:
     | {
         relationTo: 'posts';
-        value: string | Post;
+        value: number | Post;
       }[]
     | null;
   id?: string | null;
@@ -598,7 +576,7 @@ export interface ArchiveBlock {
  * via the `definition` "FormBlock".
  */
 export interface FormBlock {
-  form: string | Form;
+  form: number | Form;
   enableIntro?: boolean | null;
   introContent?: {
     root: {
@@ -624,7 +602,7 @@ export interface FormBlock {
  * via the `definition` "forms".
  */
 export interface Form {
-  id: string;
+  id: number;
   title: string;
   fields?:
     | (
@@ -795,10 +773,204 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  title: string;
+  /**
+   * Auto-generated from title. Used in the URL: /programs/[slug]
+   */
+  slug: string;
+  type: 'workshop' | 'concert' | 'exhibition' | 'screening' | 'seminar' | 'party' | 'market' | 'other';
+  startDateTime: string;
+  endDateTime?: string | null;
+  /**
+   * Which Laboratorium space hosts this event?
+   */
+  space?: (number | null) | Space;
+  /**
+   * One or two sentences shown on event cards.
+   */
+  summary?: string | null;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  featuredImage?: (number | null) | Media;
+  ticketUrl?: string | null;
+  partners?:
+    | {
+        name: string;
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  featured?: boolean | null;
+  meta?: {
+    meta?: {
+      title?: string | null;
+      description?: string | null;
+      image?: (number | null) | Media;
+    };
+  };
+  publishedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "spaces".
+ */
+export interface Space {
+  id: number;
+  name: string;
+  /**
+   * URL-friendly identifier, e.g. "lab-factory"
+   */
+  slug: string;
+  sizeSqm?: number | null;
+  capacity?: number | null;
+  /**
+   * One or two sentences describing what this space is used for.
+   */
+  use?: string | null;
+  images?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  rentable?: boolean | null;
+  publishedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects".
+ */
+export interface Project {
+  id: number;
+  title: string;
+  slug: string;
+  phase?: ('ongoing' | 'completed' | 'upcoming') | null;
+  /**
+   * One or two sentences for project cards.
+   */
+  summary?: string | null;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  collaborators?:
+    | {
+        name: string;
+        role?: string | null;
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  images?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  meta?: {
+    meta?: {
+      title?: string | null;
+      description?: string | null;
+      image?: (number | null) | Media;
+    };
+  };
+  publishedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Makers and designers in the Lab Design Market.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vendors".
+ */
+export interface Vendor {
+  id: number;
+  name: string;
+  /**
+   * URL-friendly identifier for /market/[slug]
+   */
+  slug: string;
+  /**
+   * e.g. "Ceramics", "Textile Design", "Jewelry"
+   */
+  craft?: string | null;
+  bio?: string | null;
+  photo?: (number | null) | Media;
+  socials?: {
+    instagram?: string | null;
+    facebook?: string | null;
+    website?: string | null;
+  };
+  /**
+   * When this maker joined Lab Design Market.
+   */
+  joinedDate?: string | null;
+  publishedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Messages submitted via the Contact and Get Involved forms. Admins can read and delete; submissions are not publicly listable.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-submissions".
+ */
+export interface ContactSubmission {
+  id: number;
+  name: string;
+  email: string;
+  type: 'general' | 'rent-space' | 'volunteer' | 'partner' | 'host-event' | 'residency' | 'become-maker' | 'support';
+  message: string;
+  /**
+   * Check this once you have handled the inquiry.
+   */
+  read?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
-  id: string;
+  id: number;
   /**
    * You will need to rebuild the website when changing this field.
    */
@@ -808,11 +980,11 @@ export interface Redirect {
     reference?:
       | ({
           relationTo: 'pages';
-          value: string | Page;
+          value: number | Page;
         } | null)
       | ({
           relationTo: 'posts';
-          value: string | Post;
+          value: number | Post;
         } | null);
     url?: string | null;
   };
@@ -824,8 +996,8 @@ export interface Redirect {
  * via the `definition` "form-submissions".
  */
 export interface FormSubmission {
-  id: string;
-  form: string | Form;
+  id: number;
+  form: number | Form;
   submissionData?:
     | {
         field: string;
@@ -843,18 +1015,18 @@ export interface FormSubmission {
  * via the `definition` "search".
  */
 export interface Search {
-  id: string;
+  id: number;
   title?: string | null;
   priority?: number | null;
   doc: {
     relationTo: 'posts';
-    value: string | Post;
+    value: number | Post;
   };
   slug?: string | null;
   meta?: {
     title?: string | null;
     description?: string | null;
-    image?: (string | null) | Media;
+    image?: (number | null) | Media;
   };
   categories?:
     | {
@@ -872,7 +1044,7 @@ export interface Search {
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
+  id: number;
   key: string;
   data:
     | {
@@ -889,7 +1061,7 @@ export interface PayloadKv {
  * via the `definition` "payload-jobs".
  */
 export interface PayloadJob {
-  id: string;
+  id: number;
   /**
    * Input data provided to the job
    */
@@ -981,52 +1153,68 @@ export interface PayloadJob {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: number;
   document?:
     | ({
         relationTo: 'pages';
-        value: string | Page;
+        value: number | Page;
       } | null)
     | ({
         relationTo: 'posts';
-        value: string | Post;
+        value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: number | Event;
+      } | null)
+    | ({
+        relationTo: 'spaces';
+        value: number | Space;
+      } | null)
+    | ({
+        relationTo: 'projects';
+        value: number | Project;
+      } | null)
+    | ({
+        relationTo: 'vendors';
+        value: number | Vendor;
+      } | null)
+    | ({
+        relationTo: 'contact-submissions';
+        value: number | ContactSubmission;
       } | null)
     | ({
         relationTo: 'media';
-        value: string | Media;
+        value: number | Media;
       } | null)
     | ({
         relationTo: 'categories';
-        value: string | Category;
+        value: number | Category;
       } | null)
     | ({
         relationTo: 'users';
-        value: string | User;
+        value: number | User;
       } | null)
     | ({
         relationTo: 'redirects';
-        value: string | Redirect;
+        value: number | Redirect;
       } | null)
     | ({
         relationTo: 'forms';
-        value: string | Form;
+        value: number | Form;
       } | null)
     | ({
         relationTo: 'form-submissions';
-        value: string | FormSubmission;
+        value: number | FormSubmission;
       } | null)
     | ({
         relationTo: 'search';
-        value: string | Search;
-      } | null)
-    | ({
-        relationTo: 'payload-folders';
-        value: string | FolderInterface;
+        value: number | Search;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -1036,10 +1224,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: number;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   key?: string | null;
   value?:
@@ -1059,7 +1247,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -1233,12 +1421,148 @@ export interface PostsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  type?: T;
+  startDateTime?: T;
+  endDateTime?: T;
+  space?: T;
+  summary?: T;
+  body?: T;
+  featuredImage?: T;
+  ticketUrl?: T;
+  partners?:
+    | T
+    | {
+        name?: T;
+        url?: T;
+        id?: T;
+      };
+  featured?: T;
+  meta?:
+    | T
+    | {
+        meta?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              image?: T;
+            };
+      };
+  publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "spaces_select".
+ */
+export interface SpacesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  sizeSqm?: T;
+  capacity?: T;
+  use?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  rentable?: T;
+  publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects_select".
+ */
+export interface ProjectsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  phase?: T;
+  summary?: T;
+  body?: T;
+  collaborators?:
+    | T
+    | {
+        name?: T;
+        role?: T;
+        url?: T;
+        id?: T;
+      };
+  images?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  meta?:
+    | T
+    | {
+        meta?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              image?: T;
+            };
+      };
+  publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vendors_select".
+ */
+export interface VendorsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  craft?: T;
+  bio?: T;
+  photo?: T;
+  socials?:
+    | T
+    | {
+        instagram?: T;
+        facebook?: T;
+        website?: T;
+      };
+  joinedDate?: T;
+  publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-submissions_select".
+ */
+export interface ContactSubmissionsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  type?: T;
+  message?: T;
+  read?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
-  folder?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1283,6 +1607,16 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
         medium?:
           | T
           | {
@@ -1303,7 +1637,7 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
-        xlarge?:
+        hero?:
           | T
           | {
               url?: T;
@@ -1601,18 +1935,6 @@ export interface PayloadJobsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-folders_select".
- */
-export interface PayloadFoldersSelect<T extends boolean = true> {
-  name?: T;
-  folder?: T;
-  documentsAndFolders?: T;
-  folderType?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
@@ -1644,11 +1966,13 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
+ * Main navigation links shown in the site header.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header".
  */
 export interface Header {
-  id: string;
+  id: number;
   navItems?:
     | {
         link: {
@@ -1657,11 +1981,11 @@ export interface Header {
           reference?:
             | ({
                 relationTo: 'pages';
-                value: string | Page;
+                value: number | Page;
               } | null)
             | ({
                 relationTo: 'posts';
-                value: string | Post;
+                value: number | Post;
               } | null);
           url?: string | null;
           label: string;
@@ -1673,11 +1997,13 @@ export interface Header {
   createdAt?: string | null;
 }
 /**
+ * Secondary navigation links shown in the site footer.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "footer".
  */
 export interface Footer {
-  id: string;
+  id: number;
   navItems?:
     | {
         link: {
@@ -1686,11 +2012,11 @@ export interface Footer {
           reference?:
             | ({
                 relationTo: 'pages';
-                value: string | Page;
+                value: number | Page;
               } | null)
             | ({
                 relationTo: 'posts';
-                value: string | Post;
+                value: number | Post;
               } | null);
           url?: string | null;
           label: string;
@@ -1698,6 +2024,64 @@ export interface Footer {
         id?: string | null;
       }[]
     | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Global site identity, contact info, social links, and award badges. Used in the footer, contact page, and schema.org structured data.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  siteName: string;
+  /**
+   * Short manifesto line shown in the hero. e.g. "A laboratory of beautiful things."
+   */
+  tagline?: string | null;
+  logo?: (number | null) | Media;
+  /**
+   * Fallback image used for social sharing when a page has no specific image.
+   */
+  defaultOgImage?: (number | null) | Media;
+  contact?: {
+    email?: string | null;
+    /**
+     * Where to send new contact form submissions.
+     */
+    notificationEmail?: string | null;
+    phone?: string | null;
+    phoneAlt?: string | null;
+    address?: string | null;
+    /**
+     * e.g. "Mon–Sun, open for events in the evenings"
+     */
+    hours?: string | null;
+    contactPerson?: string | null;
+  };
+  social?: {
+    instagram?: string | null;
+    facebook?: string | null;
+    linktree?: string | null;
+  };
+  /**
+   * Listed in the footer and About page.
+   */
+  awards?: {
+    items?:
+      | {
+          name: string;
+          url?: string | null;
+          logo?: (number | null) | Media;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * e.g. "© 2025 Laboratorium. Design by ..."
+   */
+  footerText?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1749,6 +2133,50 @@ export interface FooterSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  tagline?: T;
+  logo?: T;
+  defaultOgImage?: T;
+  contact?:
+    | T
+    | {
+        email?: T;
+        notificationEmail?: T;
+        phone?: T;
+        phoneAlt?: T;
+        address?: T;
+        hours?: T;
+        contactPerson?: T;
+      };
+  social?:
+    | T
+    | {
+        instagram?: T;
+        facebook?: T;
+        linktree?: T;
+      };
+  awards?:
+    | T
+    | {
+        items?:
+          | T
+          | {
+              name?: T;
+              url?: T;
+              logo?: T;
+              id?: T;
+            };
+      };
+  footerText?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -1768,14 +2196,18 @@ export interface TaskSchedulePublish {
     doc?:
       | ({
           relationTo: 'pages';
-          value: string | Page;
+          value: number | Page;
         } | null)
       | ({
           relationTo: 'posts';
-          value: string | Post;
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'events';
+          value: number | Event;
         } | null);
     global?: string | null;
-    user?: (string | null) | User;
+    user?: (number | null) | User;
   };
   output?: unknown;
 }
@@ -1823,269 +2255,6 @@ export interface Auth {
   [k: string]: unknown;
 }
 
-
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "events".
- */
-export interface Event {
-  id: string;
-  title?: string | null;
-  slug: string;
-  type: 'workshop' | 'concert' | 'exhibition' | 'screening' | 'seminar' | 'party' | 'market' | 'other';
-  startDateTime?: string | null;
-  endDateTime?: string | null;
-  space?: (string | null) | Space;
-  summary?: string | null;
-  body?: {
-    root: {
-      type: string;
-      children: { type: any; version: number; [k: string]: unknown }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  featuredImage?: (string | null) | Media;
-  ticketUrl?: string | null;
-  partners?: { name: string; url?: string | null; id?: string | null }[] | null;
-  featured?: boolean | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    image?: (string | null) | Media;
-  };
-  publishedAt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "spaces".
- */
-export interface Space {
-  id: string;
-  name?: string | null;
-  slug: string;
-  sizeSqm?: number | null;
-  capacity?: number | null;
-  use?: string | null;
-  images?: { image?: (string | null) | Media; caption?: string | null; id?: string | null }[] | null;
-  rentable?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "projects".
- */
-export interface Project {
-  id: string;
-  title?: string | null;
-  slug: string;
-  phase?: ('ongoing' | 'upcoming' | 'completed') | null;
-  summary?: string | null;
-  body?: {
-    root: {
-      type: string;
-      children: { type: any; version: number; [k: string]: unknown }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  collaborators?: { name?: string | null; role?: string | null; url?: string | null; id?: string | null }[] | null;
-  images?: { image?: (string | null) | Media; id?: string | null }[] | null;
-  publishedAt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "vendors".
- */
-export interface Vendor {
-  id: string;
-  name: string;
-  slug: string;
-  craft?: string | null;
-  bio?: {
-    root: {
-      type: string;
-      children: { type: any; version: number; [k: string]: unknown }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  photo?: (string | null) | Media;
-  socials?: {
-    instagram?: string | null;
-    website?: string | null;
-    facebook?: string | null;
-  } | null;
-  joinedDate?: string | null;
-  publishedAt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contact-submissions".
- */
-export interface ContactSubmission {
-  id: string;
-  name: string;
-  email: string;
-  type?: ('general' | 'rent-space' | 'volunteer' | 'partner' | 'host-event' | 'residency' | 'become-maker' | 'support') | null;
-  message: string;
-  read?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-settings".
- */
-export interface SiteSettings {
-  id: string;
-  siteName?: string | null;
-  tagline?: string | null;
-  logo?: (string | null) | Media;
-  defaultOgImage?: (string | null) | Media;
-  contact?: {
-    address?: string | null;
-    phone?: string | null;
-    phoneAlt?: string | null;
-    email?: string | null;
-    notificationEmail?: string | null;
-    mapUrl?: string | null;
-    contactPerson?: string | null;
-    hours?: string | null;
-  } | null;
-  social?: {
-    instagram?: string | null;
-    facebook?: string | null;
-    youtube?: string | null;
-    tiktok?: string | null;
-    linktree?: string | null;
-  } | null;
-  awards?: {
-    items?: { name: string; year?: string | null; url?: string | null; id?: string | null }[] | null;
-  } | null;
-  footerText?: string | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "events_select".
- */
-export interface EventsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  type?: T;
-  startDateTime?: T;
-  endDateTime?: T;
-  space?: T;
-  summary?: T;
-  body?: T;
-  featuredImage?: T;
-  ticketUrl?: T;
-  partners?: T | { name?: T; url?: T; id?: T };
-  featured?: T;
-  meta?: T | { title?: T; description?: T; image?: T };
-  publishedAt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "spaces_select".
- */
-export interface SpacesSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  sizeSqm?: T;
-  capacity?: T;
-  use?: T;
-  images?: T | { image?: T; caption?: T; id?: T };
-  rentable?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "projects_select".
- */
-export interface ProjectsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  status?: T;
-  summary?: T;
-  body?: T;
-  collaborators?: T | { name?: T; role?: T; url?: T; id?: T };
-  images?: T | { image?: T; id?: T };
-  publishedAt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "vendors_select".
- */
-export interface VendorsSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  craft?: T;
-  bio?: T;
-  photo?: T;
-  socials?: T | { instagram?: T; website?: T; facebook?: T };
-  joinedDate?: T;
-  publishedAt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contact-submissions_select".
- */
-export interface ContactSubmissionsSelect<T extends boolean = true> {
-  name?: T;
-  email?: T;
-  type?: T;
-  message?: T;
-  read?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-settings_select".
- */
-export interface SiteSettingsSelect<T extends boolean = true> {
-  siteName?: T;
-  tagline?: T;
-  logo?: T;
-  defaultOgImage?: T;
-  contact?: T | { address?: T; phone?: T; email?: T; mapUrl?: T };
-  social?: T | { instagram?: T; facebook?: T; youtube?: T; tiktok?: T };
-  awards?: T | { items?: T | { name?: T; year?: T; id?: T } };
-  footerText?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}
