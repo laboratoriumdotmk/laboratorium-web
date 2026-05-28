@@ -24,6 +24,7 @@ async function seed() {
   if (existingUsers.totalDocs === 0) {
     await payload.create({
       collection: 'users',
+      context: { disableRevalidate: true },
       data: {
         name: 'Laboratorium Admin',
         email: adminEmail,
@@ -39,6 +40,7 @@ async function seed() {
   // ── Site Settings ───────────────────────────────────────────────────────────
   await payload.updateGlobal({
     slug: 'site-settings',
+    context: { disableRevalidate: true },
     data: {
       siteName: 'Laboratorium',
       tagline: { mk: 'Лабораторија за убави нешта.', en: 'A laboratory of beautiful things.' },
@@ -90,6 +92,7 @@ async function seed() {
   // ── Header Nav ──────────────────────────────────────────────────────────────
   await payload.updateGlobal({
     slug: 'header',
+    context: { disableRevalidate: true },
     data: {
       navItems: [
         { link: { type: 'custom', url: '/', label: { mk: 'Дома', en: 'Home' }, appearance: 'link' } },
@@ -109,6 +112,7 @@ async function seed() {
   // ── Footer Nav ──────────────────────────────────────────────────────────────
   await payload.updateGlobal({
     slug: 'footer',
+    context: { disableRevalidate: true },
     data: {
       navItems: [
         { link: { type: 'custom', url: '/about', label: { mk: 'За нас', en: 'About' }, appearance: 'link' } },
@@ -188,6 +192,7 @@ async function seed() {
     if (existing.totalDocs === 0) {
       await payload.create({
         collection: 'spaces',
+        context: { disableRevalidate: true },
         data: { ...spaceData, _status: 'published' },
       })
       console.log(`  ✓ Space: ${spaceData.slug}`)
@@ -239,6 +244,7 @@ async function seed() {
     if (existing.totalDocs === 0) {
       await payload.create({
         collection: 'events',
+        context: { disableRevalidate: true },
         data: { ...eventData, _status: 'published' },
       })
       console.log(`  ✓ Event: ${eventData.slug}`)
@@ -310,6 +316,7 @@ async function seed() {
     if (existing.totalDocs === 0) {
       await payload.create({
         collection: 'projects',
+        context: { disableRevalidate: true },
         data: { ...projectData, _status: 'published' },
       })
       console.log(`  ✓ Project: ${projectData.slug}`)
@@ -345,6 +352,7 @@ async function seed() {
     if (existing.totalDocs === 0) {
       await payload.create({
         collection: 'vendors',
+        context: { disableRevalidate: true },
         data: { ...vendorData, _status: 'published' },
       })
       console.log(`  ✓ Vendor: ${vendorData.slug}`)
@@ -358,6 +366,7 @@ async function seed() {
   if (postExisting.totalDocs === 0) {
     await payload.create({
       collection: 'posts',
+      context: { disableRevalidate: true },
       data: {
         title: 'Laboratorium отвора врати — Декември 2024',
         slug: 'laboratorium-otvoranje',
