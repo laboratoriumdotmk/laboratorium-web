@@ -372,6 +372,31 @@ async function seed() {
         slug: 'laboratorium-otvoranje',
         publishedAt: '2024-12-01T12:00:00.000Z',
         _status: 'published',
+        content: {
+          root: {
+            type: 'root',
+            children: [
+              {
+                type: 'paragraph',
+                version: 1,
+                children: [
+                  {
+                    type: 'text',
+                    text: 'Laboratorium е слободен едукативен и културен центар во Скопје, посветен на уметноста, занаетот и заедницата.',
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+              },
+            ],
+            direction: 'ltr',
+            format: '',
+            indent: 0,
+            version: 1,
+          },
+        },
       },
     })
     console.log('  ✓ News post: laboratorium-otvoranje')
