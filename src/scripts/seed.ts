@@ -90,37 +90,62 @@ async function seed() {
   console.log('  ✓ Site Settings')
 
   // ── Header Nav ──────────────────────────────────────────────────────────────
+  const navUrls = ['/', '/about', '/spaces', '/programs', '/market', '/projects', '/get-involved', '/news', '/contact']
+  const navLabelsMk = ['Дома', 'За нас', 'Простори', 'Програма', 'Пазар', 'Проекти', 'Вклучи се', 'Вести', 'Контакт']
+  const navLabelsEn = ['Home', 'About', 'Spaces', 'Programs', 'Market', 'Projects', 'Get Involved', 'News', 'Contact']
+
   await payload.updateGlobal({
     slug: 'header',
+    locale: 'mk' as any,
     context: { disableRevalidate: true },
     data: {
-      navItems: [
-        { link: { type: 'custom', url: '/', label: { mk: 'Дома', en: 'Home' }, appearance: 'link' } },
-        { link: { type: 'custom', url: '/about', label: { mk: 'За нас', en: 'About' }, appearance: 'link' } },
-        { link: { type: 'custom', url: '/spaces', label: { mk: 'Простори', en: 'Spaces' }, appearance: 'link' } },
-        { link: { type: 'custom', url: '/programs', label: { mk: 'Програма', en: 'Programs' }, appearance: 'link' } },
-        { link: { type: 'custom', url: '/market', label: { mk: 'Пазар', en: 'Market' }, appearance: 'link' } },
-        { link: { type: 'custom', url: '/projects', label: { mk: 'Проекти', en: 'Projects' }, appearance: 'link' } },
-        { link: { type: 'custom', url: '/get-involved', label: { mk: 'Вклучи се', en: 'Get Involved' }, appearance: 'link' } },
-        { link: { type: 'custom', url: '/news', label: { mk: 'Вести', en: 'News' }, appearance: 'link' } },
-        { link: { type: 'custom', url: '/contact', label: { mk: 'Контакт', en: 'Contact' }, appearance: 'link' } },
-      ],
+      navItems: navUrls.map((url, i) => ({
+        link: { type: 'custom', url, label: navLabelsMk[i], appearance: 'link' },
+      })),
+    },
+  })
+
+  // Fetch with IDs so we can patch only the label for the English locale
+  const headerMk = await payload.findGlobal({ slug: 'header', locale: 'mk' as any })
+  await payload.updateGlobal({
+    slug: 'header',
+    locale: 'en' as any,
+    context: { disableRevalidate: true },
+    data: {
+      navItems: (headerMk.navItems || []).map((item: any, i: number) => ({
+        id: item.id,
+        link: { ...item.link, label: navLabelsEn[i] },
+      })),
     },
   })
   console.log('  ✓ Header navigation')
 
   // ── Footer Nav ──────────────────────────────────────────────────────────────
+  const footerUrls = ['/about', '/programs', '/market', '/contact', '/get-involved']
+  const footerLabelsMk = ['За нас', 'Програма', 'Пазар', 'Контакт', 'Вклучи се']
+  const footerLabelsEn = ['About', 'Programs', 'Market', 'Contact', 'Get Involved']
+
   await payload.updateGlobal({
     slug: 'footer',
+    locale: 'mk' as any,
     context: { disableRevalidate: true },
     data: {
-      navItems: [
-        { link: { type: 'custom', url: '/about', label: { mk: 'За нас', en: 'About' }, appearance: 'link' } },
-        { link: { type: 'custom', url: '/programs', label: { mk: 'Програма', en: 'Programs' }, appearance: 'link' } },
-        { link: { type: 'custom', url: '/market', label: { mk: 'Пазар', en: 'Market' }, appearance: 'link' } },
-        { link: { type: 'custom', url: '/contact', label: { mk: 'Контакт', en: 'Contact' }, appearance: 'link' } },
-        { link: { type: 'custom', url: '/get-involved', label: { mk: 'Вклучи се', en: 'Get Involved' }, appearance: 'link' } },
-      ],
+      navItems: footerUrls.map((url, i) => ({
+        link: { type: 'custom', url, label: footerLabelsMk[i], appearance: 'link' },
+      })),
+    },
+  })
+
+  const footerMk = await payload.findGlobal({ slug: 'footer', locale: 'mk' as any })
+  await payload.updateGlobal({
+    slug: 'footer',
+    locale: 'en' as any,
+    context: { disableRevalidate: true },
+    data: {
+      navItems: (footerMk.navItems || []).map((item: any, i: number) => ({
+        id: item.id,
+        link: { ...item.link, label: footerLabelsEn[i] },
+      })),
     },
   })
   console.log('  ✓ Footer navigation')
